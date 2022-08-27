@@ -166,7 +166,7 @@ def significance_threshold(cutoff, c):
     plt.ylabel('Densidad')
     plt.xlabel('Rango')
 
-def graph_significance():
+
     for i, p_value in enumerate([0.005, 0.025, 0.05]):
         significance_threshold(p_value, colors[i])
 
@@ -188,7 +188,7 @@ def t_distribution(degree_freedom = [1, 5, 10, 30, 60]):
 
     for i, degree in enumerate(degree_freedom):
         plt.plot(x_axis, stats.t.pdf(x_axis, degree), color=colors[i],
-                 linestyle = '--', lw=2, label="Grados de Libertad: {}". format(degree))
+                linestyle = '--', lw=2, label="Grados de Libertad: {}". format(degree))
 
     plt.plot(x_axis, stats.norm.pdf(x_axis), color=colors[5], label = r'$X\sim\mathcal{N}(0,1)$', lw=4)
     plt.legend()
