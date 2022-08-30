@@ -174,7 +174,7 @@ def confidence_intervals():
     plt.ylabel('Parámetro')
     plt.title('')
 
-def significance_threshold(cutoff, c):
+def significance_threshold(cutoff, i):
     xaxis = np.linspace(-3, 3, 500)
     t_distribution = stats.t.pdf(xaxis, 500)
     cutoff_point = stats.t.ppf(cutoff, 500)

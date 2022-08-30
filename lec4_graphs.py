@@ -194,6 +194,31 @@ def t_distribution(degree_freedom = [1, 5, 10, 30, 60]):
     plt.legend()
 
 
+def significance_threshold(cutoff, i):
+    xaxis = np.linspace(-3, 3, 500)
+    t_distribution = stats.t.pdf(xaxis, 500)
+    cutoff_point = stats.t.ppf(cutoff, 500)
+    plt.plot(xaxis, t_distribution, color='#1c6cab', lw=3)
+    plt.axvline(cutoff_point, 0, 0.4, color=colors[i],
+                label=r'Sig: {0}% z: {1}'.format(int((1-(2*cutoff)) * 100), round(cutoff_point, 2)),
+                linestyle='--')
+    plt.annotate("{}".format(-cutoff), xy=(cutoff_point-.25, 0.16), color=colors[i], )
+    plt.axvline(-cutoff_point, 0, 0.4, color=colors[i], linestyle='--')
+    plt.annotate("{}".format(cutoff), xy=(-cutoff_point, 0.16), color=colors[i])
+    plt.annotate("Falla en Rechazar \nHipótesis Nula", xy=(-0.35, .25))
+    plt.fill_between(xaxis, 0, .4, where=xaxis > 1.62, alpha=.1, facecolor='slategrey')
+    plt.fill_between(xaxis, 0, .4, where=xaxis < -1.62, alpha=.1, facecolor='slategrey')
+    plt.annotate("Rechazo \nHipótesis Nula", xy=(1.96, .20))
+    plt.annotate("Rechazo \nHipótesis Nula", xy=(-2.7, .20))
+    plt.legend(loc=8, fontsize=12)
+    plt.ylim(0, .40)
+    plt.title(r'Regiones de rechazo en la distribución de la nula $H_{0}\sim\mathcal{N}(0,1)$')
+    plt.ylabel('Densidad')
+    plt.xlabel('Rango')
+
+def graph_significance():
+    for i, p_value in enumerate([0.005, 0.025, 0.05, 0.10]):
+        significance_threshold(p_value, colors[i])
 
 
 
@@ -235,3 +260,42 @@ def confidence_intervals():
     plt.xlabel('Iteraciones')
     plt.ylabel('Parámetro')
     plt.title('')
+
+def binarize_histogram(dataframe, variable):
+    tmp = dataframe
+    tmp['binarize'] = np.where(tmp[variable] > np.mean(tmp[variable]), 1 , 0)
+    hist_1 = tmp[tmp['binarize'] == 1][variable].dropna()
+    hist_0 = tmp[tmp['binarize'] == 0][variable].dropna()
+    plt.subplot(1, 2, 1)
+    plt.hist(hist_0, alpha=.6, color='lightgrey')
+    plt.axvline(np.mean(hist_0))
+    plt.title("{0} <= {1}".format(variable, round(np.mean(hist_0), 3)))
+    plt.subplot(1, 2, 2)
+    plt.hist(hist_1, alpha=.6, color='lightgrey')
+    plt.axvline(np.mean(hist_1))
+    plt.title("{0} >= {1}".format(variable, round(np.mean(hist_0), 3)))
+
+
+def grouped_boxplot(dataframe, variable, group_by):
+    tmp = dataframe
+    stratify_by = tmp[group_by].unique()
+    if len(stratify_by) / 2 > 3:
+        fig, ax = plt.subplots(2, len(stratify_by),sharey=True)
+    else:
+        fig, ax = plt.subplots(1, len(stratify_by),sharey=True)
+    for i, n in enumerate(stratify_by):
+        ax[i].boxplot(tmp[tmp[group_by] == n][variable])
+        ax[i].set_title(n)
+
+
+def grouped_scatterplot(dataframe, x, y, group_by):
+    tmp = dataframe
+    stratify_by = tmp[group_by].unique()
+    if len(stratify_by) / 2 > 3:
+        fig, ax = plt.subplots(2, len(stratify_by),sharey=True)
+    else:
+        fig, ax = plt.subplots(1, len(stratify_by),sharey=True)
+    for i, n in enumerate(stratify_by):
+        tmp_group_plt = tmp[tmp[group_by] == n]
+        ax[i].plot(tmp_group_plt[x], tmp_group_plt[y], 'o')
+        ax[i].set_title(n)
