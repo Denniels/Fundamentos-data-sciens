@@ -77,3 +77,4 @@ def dotplot_1(df,plot_var,plot_by,global_stat=False,statistics="mean"):
     plt.title(plot_var)    
     
     plt.show()
+
