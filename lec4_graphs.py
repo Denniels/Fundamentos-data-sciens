@@ -40,7 +40,7 @@ def law_large_numbers(function = np.random.poisson, sample_size = 2000, Theta = 
         x_span = range(1, sample_size, 100)
         sample_average = [sample[:j].mean() for j in x_span]
         plt.plot(x_span, sample_average, lw=1.5, label = r'$\hat\theta$ en Ensayo {}'.format(i+1),
-                 color = colors[i], linestyle='--')
+                color = colors[i], linestyle='--')
 
     plt.title('Medias muestrales y tamaño muestral')
     plt.ylabel('Media muestral')
@@ -127,9 +127,9 @@ def confidence_intervals():
 
     # guardemos la información en un dataframe para facilitar la manipulación
     coverage_range = pd.DataFrame({ 'counter': cnt,
-                                   'lb': lower_bound,
-                                   'ub': upper_bound,
-                                   'rejected' : coverage} )
+                                'lb': lower_bound,
+                                'ub': upper_bound,
+                                'rejected' : coverage} )
 
     plt.axhline(y = 0, lw=3, color = '#1c6cab')
     plt.annotate(r'$\theta$ ', xy=(101,.01), fontsize=20, color='#1c6cab')
