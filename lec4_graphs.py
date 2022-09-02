@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.stats as stats
+import seaborn as sns
 from scipy.stats import norm
 from scipy.stats import t
 
@@ -261,19 +262,33 @@ def confidence_intervals():
     plt.ylabel('Parámetro')
     plt.title('')
 
-def binarize_histogram(dataframe, variable):
+def binarize_histogram_plt(dataframe, variable):
     tmp = dataframe
-    tmp['binarize'] = np.where(tmp[variable] > np.mean(tmp[variable]), 1 , 0)
+    tmp['binarize'] = np.where(tmp[variable] > np.mean(tmp[variable]), 1, 0)
     hist_1 = tmp[tmp['binarize'] == 1][variable].dropna()
     hist_0 = tmp[tmp['binarize'] == 0][variable].dropna()
     plt.subplot(1, 2, 1)
-    plt.hist(hist_0, alpha=.6, color='lightgrey')
+    plt.hist(hist_0, color='lightgrey')
     plt.axvline(np.mean(hist_0))
-    plt.title("{0} <= {1}".format(variable, round(np.mean(hist_0), 3)))
+    plt.title("{0} <= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
     plt.subplot(1, 2, 2)
-    plt.hist(hist_1, alpha=.6, color='lightgrey')
+    plt.hist(hist_1,color='lightgrey')
     plt.axvline(np.mean(hist_1))
-    plt.title("{0} >= {1}".format(variable, round(np.mean(hist_0), 3)))
+    plt.title("{0} >= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+
+def binarize_histogram_sns(dataframe, variable):
+    tmp = dataframe
+    tmp['binarize'] = np.where(tmp[variable] > np.mean(tmp[variable]), 1, 0)
+    hist_1 = tmp[tmp['binarize'] == 1][variable].dropna()
+    hist_0 = tmp[tmp['binarize'] == 0][variable].dropna()
+    plt.subplot(1, 2, 1)
+    sns.histplot(data= hist_0, color='lightgrey')
+    plt.axvline(np.mean(hist_0))
+    plt.title("{0} <= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+    plt.subplot(1, 2, 2)
+    sns.histplot(data= hist_1,color='lightgrey')
+    plt.axvline(np.mean(hist_1))
+    plt.title("{0} >= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
 
 
 def grouped_boxplot(dataframe, variable, group_by):
