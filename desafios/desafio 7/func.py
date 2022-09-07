@@ -270,11 +270,11 @@ def binarize_histogram_plt(dataframe, variable):
     plt.subplot(1, 2, 1)
     plt.hist(hist_0, color='lightgrey')
     plt.axvline(np.mean(hist_0))
-    plt.title("{0} <= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+    plt.title(f"{variable} <= {round(np.mean(tmp[variable]), 3)}")#.format(variable, round(np.mean(tmp[variable]), 3)))
     plt.subplot(1, 2, 2)
     plt.hist(hist_1,color='lightgrey')
     plt.axvline(np.mean(hist_1))
-    plt.title("{0} >= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+    plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")#.format(variable, round(np.mean(tmp[variable]), 3)))
 
 def binarize_histogram_sns(dataframe, variable):
     tmp = dataframe
@@ -284,11 +284,11 @@ def binarize_histogram_sns(dataframe, variable):
     plt.subplot(1, 2, 1)
     sns.histplot(data= hist_0, color='lightgrey')
     plt.axvline(np.mean(hist_0))
-    plt.title("{0} <= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+    plt.title(f"{variable} <= {round(np.mean(tmp[variable]), 3)}")#.format(variable, round(np.mean(tmp[variable]), 3)))
     plt.subplot(1, 2, 2)
     sns.histplot(data= hist_1,color='lightgrey')
     plt.axvline(np.mean(hist_1))
-    plt.title("{0} >= {1}".format(variable, round(np.mean(tmp[variable]), 3)))
+    plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")#.format(variable, round(np.mean(tmp[variable]), 3)))
 
 
 def grouped_boxplot(dataframe, variable, group_by):
@@ -314,3 +314,37 @@ def grouped_scatterplot(dataframe, x, y, group_by):
         tmp_group_plt = tmp[tmp[group_by] == n]
         ax[i].plot(tmp_group_plt[x], tmp_group_plt[y], 'o')
         ax[i].set_title(n)
+
+'''def hist_var_bin(df, var, binarize):
+    tmp = df
+    tmp['binarize'] = np.where(tmp[df] > np.mean(tmp[var]), 1, 0)
+    hist_1 = tmp[tmp['binarize'] == 1][var].dropna()
+    hist_0 = tmp[tmp['binarize'] == 0][var].dropna()
+
+    bins = np.linspace(0, 10, 20)
+
+    plt.hist(x, bins, alpha = 0.5, label = binarize)
+    plt.hist(y, bins, alpha = 0.5, label = f'No {binarize}')
+    plt.xlabel(var)
+    plt.ylabel('count')
+    plt.legend(loc = 'upper left')
+    plt.axvline(x.mean(), ls = '--', c = 'lightblue')
+    plt.axvline(y.mean(), ls = '--', c = 'orange')
+    plt.show()'''
+
+
+def histogram_var_bin(dataframe, variable):
+
+    tmp = dataframe
+    tmp['binarize'] = np.where(tmp[variable] > np.mean(tmp[variable]), 1, 0)
+    x = tmp[tmp['binarize'] == 1][variable].dropna()
+    y = tmp[tmp['binarize'] == 0][variable].dropna()
+
+    plt.subplot(1, 2, 1)
+    plt.hist(x, alpha = 0.5, color = 'lightblue')
+    plt.axvline(np.mean(x))
+    plt.title(f"{variable} <= {round(np.mean(tmp[variable]), 3)}")
+    plt.subplot(1, 2, 2)
+    plt.hist(y,alpha = 0.5, color = 'orange')
+    plt.axvline(np.mean(y))
+    plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")
