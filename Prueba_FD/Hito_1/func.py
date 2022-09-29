@@ -9,6 +9,9 @@ Github: https://github.com/ignaciosotoz
 Description: Ancilliary file for intro to data science - adl
 """
 
+import argparse
+import time
+import os
 from collections import Counter
 import math
 import numpy as np
@@ -348,3 +351,71 @@ def histogram_var_bin(dataframe, variable):
     plt.hist(y,alpha = 0.5, color = 'orange')
     plt.axvline(np.mean(y))
     plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")
+
+def summary_data(data):
+    tipos = pd.DataFrame({'tipo': data.dtypes},index=data.columns)
+    na = pd.DataFrame({'nulos': data.isna().sum()}, index=data.columns)
+    na_prop = pd.DataFrame({'porc_nulos':data.isna().sum()/data.shape[0]}, index=data.columns)
+    ceros = pd.DataFrame({'ceros':[data.loc[data[col]==0,col].shape[0] for col in data.columns]}, index= data.columns)
+    ceros_prop = pd.DataFrame({'porc_ceros':[data.loc[data[col]==0,col].shape[0]/data.shape[0] for col in data.columns]}, index= data.columns)
+    summary = data.describe(include='all').T
+
+    summary['dist_IQR'] = summary['75%'] - summary['25%']
+    summary['limit_inf'] = summary['25%'] - summary['dist_IQR']*1.5
+    summary['limit_sup'] = summary['75%'] + summary['dist_IQR']*1.5
+
+    summary['outliers'] = data.apply(lambda x: sum(np.where((x<summary['limit_inf'][x.name]) | (x>summary['limit_sup'][x.name]),1 ,0)) if x.name in summary['limit_inf'].dropna().index else 0)
+
+
+    return pd.concat([tipos, na, na_prop, ceros, ceros_prop, summary], axis=1).sort_values('tipo')
+
+def cross_plot(data, barra, variable, categorias, size=(10,7), xlim=(-0.5,3.5), ylim=(0.1,0.8), titulo = None, order=1, medias=0):
+    fig, ax1 = plt.subplots(figsize=size)
+    ax2 = ax1.twinx()
+    if order==1:
+        data = data.sort_values(barra).reset_index(drop=True)
+    data[barra].plot(kind='bar', color='b', ax=ax1, label=barra)
+    try:
+        for v in variable:
+            data[v].plot(kind='line', marker='d', ax=ax2, label=v)
+    except:
+        data[variable].plot(kind='line',color='r', marker='d', ax=ax2, label=variable)
+    ax1.yaxis.tick_left()
+    ax2.yaxis.tick_right()
+    ticks = data[categorias]
+    plt.xticks(np.arange(ticks.unique().shape[0]),ticks)
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    if medias==1:
+        cc = ['blue','red','gray']
+        j=0
+        try:
+            for v in variable:
+                plt.axhline(data[v].mean(), label=v, color=cc[j])
+                j=j+1
+        except:
+            plt.axhline(data[variable].mean(), label=variable, color=cc[j])
+    plt.title(titulo)
+    ax1.set_xlabel(categorias)
+    ax1.set_ylabel(barra)
+    ax2.set_ylabel(variable)
+    plt.legend()
+    plt.grid()
+    fig.tight_layout()  
+    plt.show()
+
+def form_model(df, var_obj):
+    """Modelo logit con todos sus atributos.
+    Args:
+        df (dataframe): Conjunto de datos
+        var_obj (string): variable objetivo
+    Returns:
+        string: formula del modelo
+    """
+    base_formula = f'{var_obj} ~ '
+    for col in df.columns:
+        if col != var_obj:
+            base_formula += f'{col} + '
+    return base_formula[:-3]
+
+
