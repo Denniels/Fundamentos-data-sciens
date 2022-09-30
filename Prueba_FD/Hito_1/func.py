@@ -24,6 +24,7 @@ from scipy.stats import t
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
 
 colors = ["tomato", "darkgoldenrod", "limegreen", "dodgerblue", "sienna", "slategray"]
 
@@ -444,3 +445,16 @@ def predict(df, var_obj):
         # prediccion de clases y probabilidad
         y_hat = modelo_x.predict(X_test_std)
         return modelo_x, y_test, y_hat
+
+def report_scores(y_predict, y_validate):
+    """Calcula el error cuadrático medio y el r2 score entre dos vectores. El primero, el vector de valores predecidos por el
+    conjunto de prueba, y el segundo, el vector objetivo original.
+
+    Args:
+        y_predict (vector): vector de valores predecidos
+        y_validate (vector): vector de valores verdaderos
+    """
+    mse = mean_squared_error(y_validate, y_predict)
+    r2 = r2_score(y_validate, y_predict).round(2)
+    print(f'Error cuadrático medio: {mse}')
+    print(f'R2: {r2}')
