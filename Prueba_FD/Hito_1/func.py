@@ -21,7 +21,9 @@ import scipy.stats as stats
 import seaborn as sns
 from scipy.stats import norm
 from scipy.stats import t
-
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 colors = ["tomato", "darkgoldenrod", "limegreen", "dodgerblue", "sienna", "slategray"]
 
@@ -352,7 +354,7 @@ def histogram_var_bin(dataframe, variable):
     plt.axvline(np.mean(y))
     plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")
 
-def summary_data(data):
+def summary_drop(data):
     tipos = pd.DataFrame({'tipo': data.dtypes},index=data.columns)
     na = pd.DataFrame({'nulos': data.isna().sum()}, index=data.columns)
     na_prop = pd.DataFrame({'porc_nulos':data.isna().sum()/data.shape[0]}, index=data.columns)
@@ -418,4 +420,27 @@ def form_model(df, var_obj):
             base_formula += f'{col} + '
     return base_formula[:-3]
 
+def predict(df, var_obj):
+        """Función que automatiza las predicciones por LogisticRegression.
 
+        Args:
+                df (dataframe): dataframe con todas las variables a introducir en el modelo, incluida la V.O
+                var_obj (str): variable objetivo
+
+        Returns:
+                array: vector de prueba y vector de predicciones
+        """
+        # separando matriz de atributos de vector objetivo
+        # utilizamos dataframe con variables significativas
+        mat_atr = df.drop(var_obj, axis=1)
+        vec_obj = df[var_obj]
+        # split de conjuntos de entrenamiento vs prueba
+        X_train, X_test, y_train, y_test = train_test_split(mat_atr, vec_obj, test_size = .33, random_state = 15820)
+        # estandarizamos conjunto de entrenamiento
+        X_train_std = StandardScaler().fit_transform(X_train)
+        X_test_std = StandardScaler().fit_transform(X_test)
+        # ajustamos modelo sin alterar hiperparámetros
+        modelo_x =  LogisticRegression().fit(X_train_std, y_train)
+        # prediccion de clases y probabilidad
+        y_hat = modelo_x.predict(X_test_std)
+        return modelo_x, y_test, y_hat
