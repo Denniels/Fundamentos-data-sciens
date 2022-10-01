@@ -458,3 +458,37 @@ def report_scores(y_predict, y_validate):
     r2 = r2_score(y_validate, y_predict).round(2)
     print(f'Error cuadrático medio: {mse}')
     print(f'R2: {r2}')
+
+def get_vars4type(df, exception, var='all'):
+    """
+    Funcion que, dado un DataFrame de entrada, devuelve las variables segmentadas en numericas y/o categorias.
+    
+    Entrada:
+        - df        : Dataframe que se desea analizar.
+        - exception : Listado de excepciones en formato lista.  
+                    Las excepciones son los nombres de las columnas del DataFrame "df"
+        - var       : el tipo de salida de la funcion en formato lista.
+        - var='cat': Entrega las variables consideradas como categoricas.
+        - var='num': Entrega las variables consideradas como numericas.
+        - var='all': Entrega todas las variables
+        
+    Salida:
+        La funcion entrega su salida en formato lista de la siguiente forma:
+        
+        ['var1', 'var2', 'var3', ... , 'varn']
+    """
+    var_num = []
+    var_cat = []
+    for i in df.columns:
+        if i not in exception:
+            if pd.api.types.is_numeric_dtype(df[i]):
+                var_num.append(i)
+            else:
+                var_cat.append(i)
+    
+    if var == 'cat':
+        return var_cat
+    elif var == 'num':
+        return var_num
+    else:
+        return var_cat + var_num
