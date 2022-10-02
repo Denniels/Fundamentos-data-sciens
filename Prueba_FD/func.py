@@ -25,7 +25,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
-
+import warnings
+warnings.filterwarnings(action="ignore")
 colors = ["tomato", "darkgoldenrod", "limegreen", "dodgerblue", "sienna", "slategray"]
 
 def generate_corr_matrix(rho_params = np.linspace(-1.0, 1.0, 20).round(1)):
@@ -73,7 +74,17 @@ def binomial(n, p):
     # genera la suma de ensayos de bernoulli con p probabilidad repetido n veces
     return sum(bernoulli(p) for _ in range(n))
 
-def plot_hist(p, n, points):
+def plot_hist (df, var):
+    df[var].hist()
+    
+    plt.axvline(df[var].mean(), label = 'Media', color = 'orange')
+    plt.axvline(np.median(df[var]), label = 'Mediana', color = 'green')
+
+    plt.legend()
+    plt.title(var)
+    plt.show()
+
+def plot_hist_one(p, n, points):
     # genera un array temporal para guardar distribuciones binomiales repetidas `points` veces
     tmp = [binomial(n, p) for _ in range(points)]
     # contador de instancias
@@ -296,6 +307,16 @@ def binarize_histogram_sns(dataframe, variable):
     plt.axvline(np.mean(hist_1))
     plt.title(f"{variable} >= {round(np.mean(tmp[variable]), 3)}")#.format(variable, round(np.mean(tmp[variable]), 3)))
 
+def hist_hipotesis(df, var, binarize):
+    
+    tmp=df.copy()
+    tmp=tmp.dropna(subset=[var])
+    
+    plt.hist(tmp[tmp[binarize] ==1][var], alpha=0.4, label=binarize)
+    plt.hist(tmp[tmp[binarize] ==0][var], label=f'not {binarize,}', alpha=0.4)
+
+    plt.legend()
+    plt.show()
 
 def grouped_boxplot(dataframe, variable, group_by):
     tmp = dataframe
@@ -492,3 +513,79 @@ def get_vars4type(df, exception, var='all'):
         return var_num
     else:
         return var_cat + var_num
+
+
+def get_describe(df, num=True):
+    """
+    Funcion que entrega las medidas descriptivas de las variables que componen un DataFrame.
+    La funcion identifica el tipo de variable y entrega la descripcion de esta.
+    Ademas, la funcion entrega los graficos de estas medidas en formato distplot, para las 
+    medidas numericas y countplot para las medidas no numericas.
+    
+    Entrada:
+        - df        : Dataframe que se desea analizar.
+        - num       : Variable binaria que define la salida de la funcion.
+         - num=True : Entrega la descripcion y graficos de las variables numericas.
+         - num=False: Entrega los .value_counts() y graficos de las variables no numericas.
+         
+    Salida:
+                variable_name          variable_name_2
+                count       <value>            <value>
+                mean        <value>            <value>
+                std         <value>            <value>
+                min         <value>            <value>
+                25%         <value>            <value>
+                50%         <value>            <value>
+                75%         <value>            <value>
+                max         <value>            <value>
+         
+                [-----------]    [-----------]
+                [--grafico--]    [--grafico--]
+                [-----------]    [-----------]
+                
+                [-----------]    [-----------]
+                [--grafico--]    [--grafico--]
+                [-----------]    [-----------]
+    """
+    var_num = []
+    var_cat = []
+    for i in df.columns:
+            if pd.api.types.is_numeric_dtype(df[i]):
+                var_num.append(i)
+            else:
+                var_cat.append(i)
+    
+    if num:
+        
+
+        print("Informacion sobre variables numericas:\n")
+        print(df.loc[:,var_num].describe())
+        
+        plt.figure(figsize=(12,10))
+        for n, i in enumerate(var_num):
+            n += 1
+            plt.subplot(round(len(var_num)/2,0), 2, n)
+            sns.distplot(df[i])
+            plt.axvline(df[i].mean(), color='tomato', linestyle='-', lw=2)
+            plt.title(i)
+            plt.xlabel("")
+    else:        
+        
+        print("\n\nInformacion sobre variables categoricas:\n")
+
+        for i in var_cat:
+            print(i, "\n--------------------")
+            print(df[i].value_counts('%'), "\n")
+        
+        plt.figure(figsize=(15,40))
+        long = len(var_cat)
+        for n, i in enumerate(var_cat):
+            n += 1
+            plt.subplot(long, 1, n)
+            sns.countplot(y=df[i], order=df[i].value_counts().index)
+            plt.title(i)
+            plt.xlabel("")
+
+    plt.tight_layout()
+
+    
